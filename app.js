@@ -1,12 +1,12 @@
-var http = require('http')
-
-var server=http.createServer(function(req,res){
+/**
+ * Created by student on 6/11/2016.
+ */
+var express = require('express')
+var app = express();
+app.get('/',function (req,res){
     res.writeHead(200,{"contentType":"text/html"})
-    var name="prabhat"
-    var year=2016
-    var dept="mca"
-    res.write("name of student"+name+"dept"+dept+" year"+year)
+    res.write("hello");
     res.end("")
 })
-
-server.listen(1338)
+app.listen(8080);
+console.log("executed");
