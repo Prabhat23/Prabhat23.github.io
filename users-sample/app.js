@@ -2,19 +2,21 @@
 var express  = require('express'),
    mongoose = require('mongoose'),
    bodyParser = require('body-parser'),
+    ejs      = require('ejs')
 
     // Mongoose Schema definition
+//Update user model (todo)
     Schema = new mongoose.Schema({
-      studentId       : String, 
-      name    : String,
-      department: String,
-      year    : String ,   
-      isPassedOut    : Boolean    
+   fname : String,
+     lname    : String,
+   mobile : String,
+   email:String
+          
     }),
 
     User = mongoose.model('User', Schema);
 
-    mongoose.connect('mongodb://prab:rinku1@ds013584.mlab.com:13584/prabhat-gangwar-niet');
+    mongoose.connect('mongodb://pra:1234@ds013584.mlab.com:13584/prabhat-gangwar-niet');
 
 
     var app = express()
@@ -27,30 +29,43 @@ var express  = require('express'),
     res.json(200, {msg: 'OK' });
   })
 
-  app.get('/api/users', function (req, res) {
+app.get('/', function (req, res) {
     // http://mongoosejs.com/docs/api.html#query_Query-find
     User.find({}, function ( err, users ){
-      res.status(200).json(users);
+        if(!err && users){
+            res.render('users.ejs',{
+                data :  users
+            })
+        } else {
+            console.log(err)
+        }
     });
-  })
 
-  app.post('/api/user', function (req, res) {
+});
+app.get('/adduser',function(req,res){
+    res.render('addUser.ejs')
+
+})
+  app.post('/api/adduser', function (req, res) {
+
+      //update post function as per new model (todo)
         var user = new User(
         {
-        StudentId : req.body.StudentId,
-        name : req.body.name,
-        department : req.body.department,
-        year : req.body.year,
-        isPassedOut : req.body.isPassedOut
+            fname : req.body.fname,
+            lname    : req.body.lname,
+            mobile: req.body.mobile,
+            email:req.body.email
+        
         }
     );
   
     // http://mongoosejs.com/docs/api.html#model_Model-save
     user.save(function (err, data) {
         if(!err && data){
-            console.log(data)
-            res.status(200).json(data)
+            console.log('Data added successfully');
+           res.redirect('/')
         } else {
+            res.json(500, {msg: 'Something went wrong' });
             console.log(err)
         }
       
@@ -60,14 +75,22 @@ var express  = require('express'),
   app.delete('/api/users', function (req, res) {
     // http://mongoosejs.com/docs/api.html#query_Query-remove
     User.remove({ isPassedOut: true }, function ( err ) {
-      res.json(200, {msg: 'OK'});
+        if(!err){
+            console.log("User deleted successfully")
+        } else{
+            console.log(err)
+        }
     });
   })
 
   app.get('/api/users/:id', function (req, res) {
     // http://mongoosejs.com/docs/api.html#model_Model.findById
-    User.findById( req.params.id, function ( err, todo ) {
-      res.json(200, todo);
+    User.findById( req.params.id, function ( err, user ) {
+        if(!err && user){
+            res.status(200).json(user)
+        } else {
+            console.log(err)
+        }
     });
   })
 
@@ -76,7 +99,7 @@ var express  = require('express'),
     User.findById( req.params.id, function ( err, user ) {
       user.isPassedOut = req.body.completed;
       // http://mongoosejs.com/docs/api.html#model_Model-save
-      todo.save( function ( err, data ){
+      user.save( function ( err, data ){
           if(!err && data){
            res.status(200).json(data)
           } else {
@@ -85,18 +108,18 @@ var express  = require('express'),
        
       });
     });
-  })
+  });
 
   app.delete('/api/users/:id', function (req, res) {
     // http://mongoosejs.com/docs/api.html#model_Model.findById
     User.findById( req.params.id, function ( err, user ) {
       // http://mongoosejs.com/docs/api.html#model_Model.remove
-      user.remove( function ( err, user ){
-           res.status(200, {msg: 'OK'})
+      user.remove( function ( err ){
+           res.status(200, {msg: 'User deleted successfully'})
       });
     });
   })
 
-  app.listen(1338);
+app.listen(1338);
 console.log('Magic happens on port 1338');
 
